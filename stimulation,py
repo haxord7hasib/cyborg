@@ -1,0 +1,52 @@
+from mkff import MKFF
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import random
+
+def simulate_mpu9250_data():
+    """
+    Simulates MPU9250 data. In a real scenario, replace this with actual data acquisition.
+    """
+    # Simulating accelerometer data with some noise
+    ax = np.sin(time.time()) + random.uniform(-0.1, 0.1)
+    ay = np.cos(time.time()) + random.uniform(-0.1, 0.1)
+    az = random.uniform(-0.1, 0.1)
+    return np.array([ax, ay, az])
+
+def main():
+    # Initialize MKFF with Kalman Filter parameters
+    mkff = MKFF(transition_matrices=np.eye(3), observation_matrices=np.eye(3),
+                initial_state_mean=np.zeros(3), initial_state_covariance=np.eye(3) * 0.1)
+
+    # Prepare for plotting
+    plt.ion()
+    fig, ax = plt.subplots(3, 1, figsize=(10, 6))
+    times = list(range(100))
+    raw_data = np.zeros((100, 3))
+    smoothed_data = np.zeros((100, 3))
+
+    for i in range(100):
+        # Simulate data acquisition
+        data = simulate_mpu9250_data()
+        raw_data[i] = data
+
+        # Process data using MKFF
+        smoothed = mkff.process_data(data)
+        smoothed_data[i] = smoothed
+
+        # Update plots
+        for j in range(3):
+            ax[j].cla()
+            ax[j].plot(times, raw_data[:, j], label='Raw')
+            ax[j].plot(times, smoothed_data[:, j], label='Smoothed')
+            ax[j].legend()
+            ax[j].set_ylim(-2, 2)
+        
+        plt.pause(0.1)
+
+    plt.ioff()
+    plt.show()
+
+if __name__ == "__main__":
+    main()
