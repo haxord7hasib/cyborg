@@ -31,7 +31,7 @@ uint8_t n_sample = 8;                       //Accelerometer Filter Algorithm Sam
 float aaxs[8] = {0}, aays[8] = {0}, aazs[8] = {0};         //x,yAxis sampling queue
 long aax_sum, aay_sum,aaz_sum;                      //x,yAxis sampling and
 
-float a_x[10]={0}, a_y[10]={0},a_z[10]={0} ,g_x[10]={0} ,g_y[10]={0},g_z[10]={0}; //加速度计协方差计算队列
+float a_x[10]={0}, a_y[10]={0},a_z[10]={0} ,g_x[10]={0} ,g_y[10]={0},g_z[10]={0}; 
 float Px=1, Rx, Kx, Sx, Vx, Qx;             //x Axis Kalman Variable
 float Py=1, Ry, Ky, Sy, Vy, Qy;             //y Axis Kalman Variable
 float Pz=1, Rz, Kz, Sz, Vz, Qz;
@@ -155,19 +155,19 @@ void loop(void) {
     
     aaxs[n_sample-1] = aax;
     aax_sum += aax * n_sample;
-    aax = (aax_sum / (11*n_sample/2.0)) * 9 / 7.0; //角度调幅至0-90°
-    aays[n_sample-1] = aay;                        //此处应用实验法取得合适的系数
-    aay_sum += aay * n_sample;                     //本例系数为9/7
+    aax = (aax_sum / (11*n_sample/2.0)) * 9 / 7.0; 
+    aays[n_sample-1] = aay;                        
+    aay_sum += aay * n_sample;                     
     aay = (aay_sum / (11*n_sample/2.0)) * 9 / 7.0;
     aazs[n_sample-1] = aaz; 
     aaz_sum += aaz * n_sample;
     aaz = (aaz_sum / (11*n_sample/2.0)) * 9 / 7.0;
 
-    float gyrox = - (gx-gxo) / GyroRatio * dt; //x轴角速度
-    float gyroy = - (gy-gyo) / GyroRatio * dt; //y轴角速度
-    float gyroz = - (gz-gzo) / GyroRatio * dt; //z轴角速度
-    agx += gyrox;                             //x轴角速度积分
-    agy += gyroy;                             //x轴角速度积分
+    float gyrox = - (gx-gxo) / GyroRatio * dt; 
+    float gyroy = - (gy-gyo) / GyroRatio * dt; 
+    float gyroz = - (gz-gzo) / GyroRatio * dt;
+    agx += gyrox;                             
+    agy += gyroy;                             
     agz += gyroz;
     
     /* kalman start */
@@ -176,8 +176,8 @@ void loop(void) {
     Sz = 0; Rz = 0;
     
     for(int i=1;i<10;i++)
-    {                 //测量值平均值运算
-        a_x[i-1] = a_x[i];                      //即加速度平均值
+    {                 
+        a_x[i-1] = a_x[i];                      
         Sx += a_x[i];
         a_y[i-1] = a_y[i];
         Sy += a_y[i];
@@ -188,10 +188,10 @@ void loop(void) {
     
     a_x[9] = aax;
     Sx += aax;
-    Sx /= 10;                                 //x轴加速度平均值
+    Sx /= 10;                                 
     a_y[9] = aay;
     Sy += aay;
-    Sy /= 10;                                 //y轴加速度平均值
+    Sy /= 10;                                 
     a_z[9] = aaz;
     Sz += aaz;
     Sz /= 10;
@@ -204,14 +204,14 @@ void loop(void) {
     
     }
     
-    Rx = Rx / 9;                              //得到方差
+    Rx = Rx / 9;                              
     Ry = Ry / 9;                        
     Rz = Rz / 9;
   
-    Px = Px + 0.0025;                         // 0.0025在下面有说明...
-    Kx = Px / (Px + Rx);                      //计算卡尔曼增益
-    agx = agx + Kx * (aax - agx);             //陀螺仪角度与加速度计速度叠加
-    Px = (1 - Kx) * Px;                       //更新p值
+    Px = Px + 0.0025;                        
+    Kx = Px / (Px + Rx);                      
+    agx = agx + Kx * (aax - agx);            
+    Px = (1 - Kx) * Px;                       
 
     Py = Py + 0.0025;
     Ky = Py / (Py + Ry);
